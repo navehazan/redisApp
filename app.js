@@ -6,10 +6,10 @@ const methodOverride = require("method-override");
 const redis = require("redis");
 
 //Set redis
-const client=redis.createClient();
-client.on("connect",()=>{
-  console.log("connected to redis")
-})
+const client = redis.createClient();
+client.on("connect", () => {
+  console.log("connected to redis");
+});
 
 // Set Port
 const port = 3000;
@@ -34,7 +34,18 @@ app.get("/", (req, res, next) => {
 });
 app.post("/user/search", (req, res, next) => {
   const id = req.body.id;
-  console.log(id);
+  client.hgetall(id, (err, obj) => {
+    if (!obj) {
+      res.render("searchusers", {
+        error: "User does not exist"
+      });
+    } else {
+      obj.id = id;
+      res.render("details", {
+        user: obj
+      });
+    }
+  });
 });
 app.listen(port, () => {
   console.log("Server started on port " + port);
