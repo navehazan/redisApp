@@ -30,10 +30,16 @@ app.use(methodOverride("_method"));
 
 // Search Page
 app.get("/", (req, res, next) => {
-  res.render("searchUsers");
+  res.render("searchusers");
+});
+// Add User Page
+app.get("/user/add", (req, res, next) => {
+  res.render("adduser");
 });
 app.post("/user/search", (req, res, next) => {
-  const id = req.body.id;
+  // Search processing
+  let id = req.body.id;
+
   client.hgetall(id, (err, obj) => {
     if (!obj) {
       res.render("searchusers", {
@@ -47,6 +53,20 @@ app.post("/user/search", (req, res, next) => {
     }
   });
 });
+
+// Process Add User Page
+app.post("/user/add", (req, res, next) => {
+  const { id, first_name, last_name, email, phone } = req.body;
+  client.hmset(id, ["first_name", first_name, "last_name", last_name, "email", email, "phone", phone]);
+  res.redirect("/");
+});
+
+// Delete User
+app.delete("/user/delete/:id", (req, res, next) => {
+  client.del(req.params.id);
+  res.redirect("/");
+});
+
 app.listen(port, () => {
   console.log("Server started on port " + port);
 });
